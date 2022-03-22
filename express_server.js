@@ -3,7 +3,7 @@ const app = express(); //put express() into a variable called app
 const PORT = 8080; // assigns default port 8080
 const bodyParser = require("body-parser");
 const res = require("express/lib/response");
-app.use(bodyParser.urlencoded({extended: true}));
+app.use(bodyParser.urlencoded({extended: true}))
 
 app.set('view engine', 'ejs');
 
