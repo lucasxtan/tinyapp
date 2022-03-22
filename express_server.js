@@ -2,6 +2,8 @@ const express = require("express"); //require express into express() variable
 const app = express(); //put express() into a variable called app
 const PORT = 8080; // assigns default port 8080
 
+app.set('view engine', 'ejs');
+
 //create database
 const urlDatabase = {
   "b2xVn2": "http://www.lighthouselabs.ca",
