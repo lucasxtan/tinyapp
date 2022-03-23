@@ -31,6 +31,7 @@ app.get("/", (req, res) => {
   res.send("Hello!");
 });
 
+//server is listening
 app.listen(PORT, () => {
   console.log(`Example app listening on port ${PORT}!`);
 });
@@ -39,11 +40,12 @@ app.get("/urls.json", (req, res) => {
   res.json(urlDatabase);
 });
 
+//says hello world
 app.get("/hello", (req, res) => {
   res.send("<html><body>Hello <b>World</b></body></html>\n");
 });
 
-
+//homepage
 app.get("/urls", (req, res) => {
   const templateVars = { urls: urlDatabase, username: req.cookies['username'] };
   res.render("urls_index", templateVars);
@@ -67,30 +69,42 @@ app.post("/urls", (req, res) => {
 
 //login
 app.post("/login", (req, res) => {
-  res.cookie("username", req.body.username)
+  res.cookie("username", req.body.username) //creates cookie
   res.redirect("/urls")
-})
+});
 
 //logout
 app.post("/logout", (req, res) => {
-  res.clearCookie('username');
+  res.clearCookie('username'); //deletes cookie
   res.redirect('/urls');
-})
+});
 
-//UPDATE
+//register
+// app.post("/register", (req, res) => {
+  // const templateVars = { urls: urlDatabase, username: req.cookies['username'] };
+//   res.render("user_registration", templateVars)
+// });
+
+//get register page 
+app.get("/register", (req, res) => {
+  const templateVars = {username: req.cookies['username'] };
+  res.render("user_registration", templateVars);
+});
+
+//UPDATE URL
 app.post("/urls/:shortURL", (req, res) => {
   const shortURL = req.params.shortURL
   urlDatabase[shortURL] = req.body.longURL
   res.redirect("/urls");
-})
+});
 
 
-//DELETE
+//DELETE URL
 app.post("/urls/:shortURL/delete", (req, res) => {
   const shortURL = req.params.shortURL
   delete urlDatabase[shortURL]
   res.redirect("/urls");
-})
+});
 
 
 app.get("/urls/:shortURL", (req, res) => {
