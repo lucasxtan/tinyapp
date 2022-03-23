@@ -3,7 +3,7 @@ const app = express(); //put express() into a variable called app
 const PORT = 8080; // assigns default port 8080
 const bodyParser = require("body-parser");
 const res = require("express/lib/response");
-app.use(bodyParser.urlencoded({extended: true}))
+app.use(bodyParser.urlencoded({ extended: true }))
 
 app.set('view engine', 'ejs');
 
@@ -53,6 +53,14 @@ app.post("/urls", (req, res) => {
   // console.log('shortURL');
   res.redirect(`/urls/${shortURL}`)
 });
+
+//UPDATE
+app.post("/urls/:shortURL", (req, res) => {
+  const shortURL = req.params.shortURL
+  urlDatabase[shortURL] = req.body.longURL
+  res.redirect("/urls");
+})
+
 
 //DELETE
 app.post("/urls/:shortURL/delete", (req, res) => {
