@@ -109,11 +109,11 @@ app.post("/register", (req, res) => {
   const newPassword = req.body.password;
 
   if (emailLookUp(newEmail)) {
-    res.send("Email already registered")
+    res.send("400: Email already registered")
   }
 
   if (newEmail === ''){
-    res.send("No email input")
+    res.send("400: No email input")
   } 
 
 
@@ -135,6 +135,13 @@ app.get("/register", (req, res) => {
   const templateVars = {user: null };
   res.render("user_registration", templateVars);
 });
+
+//get login
+app.get("/login", (req, res) => {
+  const user = users[req.cookies['user_id']];
+  const templateVars = { urls: urlDatabase, user: user };
+  res.render("login", templateVars);
+})
 
 //UPDATE URL
 app.post("/urls/:shortURL", (req, res) => {
