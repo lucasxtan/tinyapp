@@ -88,11 +88,18 @@ app.post("/urls", (req, res) => {
   res.redirect(`/urls/${shortURL}`)
 });
 
-//login
+//login page
 app.post("/login", (req, res) => {
   res.cookie("user_id", req.body.username) //creates cookie
   res.redirect("/urls")
 });
+
+//get login
+app.get("/login", (req, res) => {
+  const user = users[req.cookies['user_id']];
+  const templateVars = { urls: urlDatabase, user: user };
+  res.render("login", templateVars);
+})
 
 //logout
 app.post("/logout", (req, res) => {
@@ -136,12 +143,7 @@ app.get("/register", (req, res) => {
   res.render("user_registration", templateVars);
 });
 
-//get login
-app.get("/login", (req, res) => {
-  const user = users[req.cookies['user_id']];
-  const templateVars = { urls: urlDatabase, user: user };
-  res.render("login", templateVars);
-})
+
 
 //UPDATE URL
 app.post("/urls/:shortURL", (req, res) => {
