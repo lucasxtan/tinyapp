@@ -98,7 +98,7 @@ app.get("/urls", (req, res) => {
 });
 
 
-//renders page to create new short url
+//goes to page to create shortURL
 app.get("/urls/new", (req, res) => {
   if (req.cookies['user_id'] === undefined){
     res.redirect("/login");
@@ -113,7 +113,7 @@ app.get("/urls/new", (req, res) => {
   }
 });
 
-//generate shortURL string
+//create shortURL string
 app.post("/urls/new", (req, res) => {
   const user = users[req.cookies['user_id']];
   if (!user){
@@ -202,6 +202,7 @@ app.get("/register", (req, res) => {
 app.post("/urls/:shortURL", (req, res) => {
   const shortURL = req.params.shortURL
   urlDatabase[shortURL].longURL = req.body.longURL
+  console.log('req.body now', req.body);
   res.redirect("/urls");
 });
 
@@ -219,16 +220,20 @@ app.post("/urls/:shortURL/delete", (req, res) => {
 
 //directs me to shortURL page
 app.get("/urls/:shortURL", (req, res) => {
-  if (!req.cookies['user_id']){
-    return res.redirect("/login");
-  } 
-  const templateVars = { shortURL: req.params.shortURL, longURL: urlDatabase[req.params.shortURL], user: req.cookies['user_id'] };
+  const user = users[req.cookies['user_id']];
+  if (!urlDatabase[req.params.shortURL]){
+    return res.send("this TinyURL doesn't exist");
+  }
+
+  console.log(req.params.shortURL)
+  const templateVars = { shortURL: req.params.shortURL, longURL: urlDatabase[req.params.shortURL].longURL, user: user };
+  console.log('templateVars on :shortURL page', templateVars);
   res.render("urls_show", templateVars);
 });
 
 //redirects me to longURL
 app.get("/u/:shortURL", (req, res) => {
-  const longURL = urlDatabase[req.params.shortURL]
+  const longURL = urlDatabase[req.params.shortURL].longURL
   console.log(req.params.shortURL);
   console.log(urlDatabase);
   res.redirect(longURL);
