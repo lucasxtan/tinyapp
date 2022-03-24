@@ -89,14 +89,30 @@ app.post("/logout", (req, res) => {
   res.redirect('/urls');
 });
 
-//register
-// app.post("/register", (req, res) => {
+//post register
+app.post("/register", (req, res) => {
   // const templateVars = { urls: urlDatabase, username: req.cookies['username'] };
-//   res.render("user_registration", templateVars)
-// });
+  console.log("register req.body", req.body);
+  
+  
+  const userID = generateRandomString()
+  const newEmail = req.body.email;
+  const newPassword = req.body.password;
+
+  res.cookie("user", userID);
+  users[userID] = {
+    id: userID,
+    email: newEmail,
+    password: newPassword
+  }
+  console.log(users)
+ 
+  res.redirect('/urls');
+});
 
 //get register page 
 app.get("/register", (req, res) => {
+  
   const templateVars = {username: req.cookies['username'] };
   res.render("user_registration", templateVars);
 });
