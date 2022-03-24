@@ -90,7 +90,7 @@ app.post("/urls", (req, res) => {
 
 //login page
 app.post("/login", (req, res) => {
-  res.cookie("user_id", req.body.username) //creates cookie
+  res.cookie("user_id", req.body.email) //creates cookie
   res.redirect("/urls")
 });
 
