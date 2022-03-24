@@ -5,7 +5,8 @@ const bodyParser = require("body-parser");
 const res = require("express/lib/response");
 app.use(bodyParser.urlencoded({ extended: true }))
 
-const cookieParser = require('cookie-parser')
+const cookieParser = require('cookie-parser');
+const req = require("express/lib/request");
 app.use(cookieParser())
 
 
@@ -42,7 +43,16 @@ function emailLookUp (email) {
       return true;
     }
   }
+  return false;
 };
+
+function idLookUp (email) {
+  for (let id in users){
+    if (email === users[id].email){
+      return id;
+    }
+  }
+}
 
 
 //this line registers a handler for hte root path, "/"
@@ -67,6 +77,7 @@ app.get("/hello", (req, res) => {
 //homepage
 app.get("/urls", (req, res) => {
   const user = users[req.cookies['user_id']];
+  (console.log(user));
   const templateVars = { urls: urlDatabase, user: user };
   res.render("urls_index", templateVars);
 });
@@ -90,8 +101,17 @@ app.post("/urls", (req, res) => {
 
 //login page
 app.post("/login", (req, res) => {
-  res.cookie("user_id", req.body.email) //creates cookie
-  res.redirect("/urls")
+  const email = req.body.email;
+  const password = req.body.password
+
+  if (!emailLookUp(email)){
+    res.send("403: email not found");
+  } else if (users[idLookUp(email)].password !== req.body.password){
+   res.send("403: password incorrect"); 
+  } else if (emailLookUp(email) && users[idLookUp(email)].password === req.body.password){
+    res.cookie("user_id", idLookUp(email)) //creates cookie
+    res.redirect("/urls")
+  }
 });
 
 //get login
