@@ -37,6 +37,7 @@ const users = {
   }
 }
 
+//returns true if email matches, otherwise false
 function emailLookUp (email) {
   for (let id in users){
     if (email === users[id].email){
@@ -46,6 +47,7 @@ function emailLookUp (email) {
   return false;
 };
 
+//returns id based on email
 function idLookUp (email) {
   for (let id in users){
     if (email === users[id].email){
@@ -55,7 +57,7 @@ function idLookUp (email) {
 }
 
 
-//this line registers a handler for hte root path, "/"
+//this line registers a handler for the root path, "/"
 app.get("/", (req, res) => {
   res.send("Hello!");
 });
@@ -76,22 +78,31 @@ app.get("/hello", (req, res) => {
 
 //homepage
 app.get("/urls", (req, res) => {
-  const user = users[req.cookies['user_id']];
-  (console.log(user));
+  const user = users[req.cookies['user_id']]; //cookie from?
+  (console.log('user variable', user));
+  console.log(req.cookies)
   const templateVars = { urls: urlDatabase, user: user };
   res.render("urls_index", templateVars);
 });
 
 
-//renders url_new
+//renders page to create new short url
 app.get("/urls/new", (req, res) => {
+  if (req.cookies['user_id'] === undefined){
+    res.redirect("/login");
+  } else {
+
+  console.log('req.cookies on /urls/new', req.cookies);
+  
   const user = users[req.cookies['user_id']];
+  console.log('user variable on /url/new/', user)
   const templateVars = { urls: urlDatabase, user: user };
-  res.render("urls_new");
+  res.render("urls_new", templateVars);
+  }
 });
 
 //generate shortURL string
-app.post("/urls", (req, res) => {
+app.post("/urls/new", (req, res) => {
   let shortURL = generateRandomString()
   console.log(shortURL);
   urlDatabase[shortURL] = req.body.longURL
@@ -117,6 +128,7 @@ app.post("/login", (req, res) => {
 //get login
 app.get("/login", (req, res) => {
   const user = users[req.cookies['user_id']];
+  console.log(req.cookies);
   const templateVars = { urls: urlDatabase, user: user };
   res.render("login", templateVars);
 })
@@ -143,9 +155,7 @@ app.post("/register", (req, res) => {
     res.send("400: No email input")
   } 
 
-
-  res.cookie("user_id", userID);
-  
+  res.cookie("user_id", userID);  
 
   users[userID] = {
     id: userID,
@@ -180,12 +190,16 @@ app.post("/urls/:shortURL/delete", (req, res) => {
   res.redirect("/urls");
 });
 
-
+//directs me to shortURL page
 app.get("/urls/:shortURL", (req, res) => {
-  const templateVars = { shortURL: req.params.shortURL, longURL: urlDatabase[req.params.shortURL], username: req.cookies['user_id'] };
+  if (req.cookies['user_id'] === undefined){
+    res.redirect("/login");
+  } 
+  const templateVars = { shortURL: req.params.shortURL, longURL: urlDatabase[req.params.shortURL], user: req.cookies['user_id'] };
   res.render("urls_show", templateVars);
 });
 
+//redirects me to longURL
 app.get("/u/:shortURL", (req, res) => {
   const longURL = urlDatabase[req.params.shortURL]
   console.log(req.params.shortURL);
