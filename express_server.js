@@ -36,6 +36,15 @@ const users = {
   }
 }
 
+function emailLookUp (email) {
+  for (let id in users){
+    if (email === users[id].email){
+      return true;
+    }
+  }
+};
+
+
 //this line registers a handler for hte root path, "/"
 app.get("/", (req, res) => {
   res.send("Hello!");
@@ -95,10 +104,18 @@ app.post("/logout", (req, res) => {
 app.post("/register", (req, res) => {
   console.log("register req.body", req.body);
   
-  
   const userID = generateRandomString()
   const newEmail = req.body.email;
   const newPassword = req.body.password;
+
+  if (emailLookUp(newEmail)) {
+    res.send("Email already registered")
+  }
+
+  if (newEmail === ''){
+    res.send("No email input")
+  } 
+
 
   res.cookie("user_id", userID);
   
