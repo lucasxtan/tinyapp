@@ -22,6 +22,9 @@ app.use(cookieSession({
 
 app.set('view engine', 'ejs');
 
+//require helper functions
+const { urlsForUser, emailLookUp, idLookUp } = require('./helper/helper.js');
+
 function generateRandomString() {
   return Math.random().toString(26).slice(-6)
 }
@@ -60,36 +63,36 @@ const users = {
 }
 
 //url filter helper function
-function urlsForUser(id, urlDatabase) {
-  let filter = {}
-  for (let url in urlDatabase) {
-    if (id === urlDatabase[url].userID) {
-      filter[url] = urlDatabase[url];
-    }
-  }
-  return filter;
-}
+// function urlsForUser(id, urlDatabase) {
+//   let filter = {}
+//   for (let url in urlDatabase) {
+//     if (id === urlDatabase[url].userID) {
+//       filter[url] = urlDatabase[url];
+//     }
+//   }
+//   return filter;
+// }
 
-//users should be a parameter
-//instead of returning true, return id?
-//returns true if email matches, otherwise false
-function emailLookUp(email) {
-  for (let id in users) {
-    if (email === users[id].email) {
-      return true;
-    }
-  }
-  return false;
-};
+// //users should be a parameter
+// //instead of returning true, return id?
+// //returns true if email matches, otherwise false
+// function emailLookUp(email) {
+//   for (let id in users) {
+//     if (email === users[id].email) {
+//       return true;
+//     }
+//   }
+//   return false;
+// };
 
-//returns id based on email
-function idLookUp(email, database) {
-  for (let id in database) {
-    if (email === database[id].email) {
-      return id;
-    }
-  }
-}
+// //returns id based on email
+// function idLookUp(email, database) {
+//   for (let id in database) {
+//     if (email === database[id].email) {
+//       return id;
+//     }
+//   }
+// }
 
 
 //this line registers a handler for the root path, "/"
@@ -140,9 +143,9 @@ app.post("/login", (req, res) => {
   const password = req.body.password
 
 
-  if (!emailLookUp(email)) {
+  if (!emailLookUp(email, users)) {
     return res.status(403).send("email not found");
-  } else if (bcrypt.compareSync(req.body.password, users[idLookUp(email)].password)) {
+  } else if (bcrypt.compareSync(req.body.password, users[idLookUp(email, users)].password)) {
     req.session.user_id = idLookUp(email, users) //creates cookie
     return res.redirect("/urls")
   } else {
@@ -178,7 +181,7 @@ app.post("/register", (req, res) => {
   const newEmail = req.body.email;
   const newPassword = bcrypt.hashSync(req.body.password, 10);
 
-  if (emailLookUp(newEmail)) {
+  if (emailLookUp(newEmail, users)) {
     return res.status(400).send("Email already registered")
   }
 
