@@ -49,6 +49,18 @@ const users = {
   }
 }
 
+//url filter helper function
+function urlsForUser(id, urlDatabase) {
+  let filter = {}
+  for (let url in urlDatabase){
+    if (id === urlDatabase[url].userID){
+      filter[url] = urlDatabase[url];
+    }
+  }
+  return filter;
+}
+
+
 //returns true if email matches, otherwise false
 function emailLookUp (email) {
   for (let id in users){
@@ -91,9 +103,11 @@ app.get("/hello", (req, res) => {
 //homepage
 app.get("/urls", (req, res) => {
   const user = users[req.cookies['user_id']];
-  (console.log('user variable', user));
-  console.log(req.cookies)
-  const templateVars = { urls: urlDatabase, user: user };
+  console.log('urlDatabase on /urls', urlDatabase);
+
+  let filterDatabase = urlsForUser(req.cookies['user_id'], urlDatabase)
+  console.log('filterDatabase', filterDatabase);
+  const templateVars = { urls: filterDatabase, user: user };
   res.render("urls_index", templateVars);
 });
 
@@ -103,28 +117,13 @@ app.get("/urls/new", (req, res) => {
   if (req.cookies['user_id'] === undefined){
     res.redirect("/login");
   } else {
-
-  console.log('req.cookies on /urls/new', req.cookies);
-  
   const user = users[req.cookies['user_id']];
-  console.log('user variable on /url/new/', user)
   const templateVars = { urls: urlDatabase, user: user };
   res.render("urls_new", templateVars);
   }
 });
 
-//create shortURL string
-app.post("/urls/new", (req, res) => {
-  const user = users[req.cookies['user_id']];
-  if (!user){
-    return res.send("You must login to create new URL");
-  }
-  let shortURL = generateRandomString()
-  console.log(shortURL);
-  urlDatabase[shortURL] = req.body.longURL
-  // console.log('shortURL');
-  res.redirect(`/urls/${shortURL}`)
-});
+
 
 //login page
 app.post("/login", (req, res) => {
@@ -147,7 +146,6 @@ app.get("/login", (req, res) => {
   if (user){
     return res.redirect("/urls");
   }
-  console.log(req.cookies);
   const templateVars = { urls: urlDatabase, user: user };
   res.render("login", templateVars);
 })
@@ -160,7 +158,6 @@ app.post("/logout", (req, res) => {
 
 //post register
 app.post("/register", (req, res) => {
-  console.log("register req.body", req.body);
   
   const userID = generateRandomString()
   const newEmail = req.body.email;
@@ -196,10 +193,27 @@ app.get("/register", (req, res) => {
   res.render("user_registration", templateVars);
 });
 
-
+//create shortURL string
+app.post("/urls/new", (req, res) => {
+  const user = users[req.cookies['user_id']];
+  if (!user){
+    return res.send("You must login to create new URL");
+  }
+  let shortURL = generateRandomString()
+  urlDatabase[shortURL] = {
+    longURL: req.body.longURL,
+    userID:req.cookies['user_id']
+  } 
+  // console.log('shortURL');
+  res.redirect(`/urls/${shortURL}`)
+});
 
 //UPDATE URL
 app.post("/urls/:shortURL", (req, res) => {
+  const user = users[req.cookies['user_id']];
+  if (!user){
+    return res.send("You must login to create new URL");
+  }
   const shortURL = req.params.shortURL
   urlDatabase[shortURL].longURL = req.body.longURL
   console.log('req.body now', req.body);
@@ -234,7 +248,5 @@ app.get("/urls/:shortURL", (req, res) => {
 //redirects me to longURL
 app.get("/u/:shortURL", (req, res) => {
   const longURL = urlDatabase[req.params.shortURL].longURL
-  console.log(req.params.shortURL);
-  console.log(urlDatabase);
   res.redirect(longURL);
 });
