@@ -5,6 +5,10 @@ const bodyParser = require("body-parser");
 const res = require("express/lib/response");
 app.use(bodyParser.urlencoded({ extended: true }))
 
+//require bcrypt
+const bcrypt = require('bcryptjs');
+
+//require cookie parser
 const cookieParser = require('cookie-parser');
 const req = require("express/lib/request");
 app.use(cookieParser())
