@@ -15,45 +15,45 @@
   <%- include('partials/_header') %>
     <main style="margin: 1em;">
       <% if (user) {%>
-      <h3>My URLs</h3>
-      <table class="table">
-        <thead>
-          <tr>
-            <th scope="col">Short URL</th>
-            <th scope="col">Long URL</th>
-            <th scope="col">Update</th>
-            <th scope="col">Delete</th>
-          </tr>
-        </thead>
-
-        <tbody>
-          <% for(let url in urls) { %>
+        <h3>My URLs</h3>
+        <table class="table">
+          <thead>
             <tr>
-              <td>
-                <%= url %>
-              </td>
-              <td>
-                <%= urls[url].longURL %>
-              </td>
-              <td>
-                <form method="GET" action="/urls/<%= url %>">
-                  <button type="submit" class="btn btn-primary">Update</button>
-                </form>
-              </td>
-              <td>
-                <form method="POST" action="/urls/<%= url %>/delete">
-                  <button type="submit" class="btn btn-outline-danger">Delete</button>
-                </form>
-              </td>
+              <th scope="col">Short URL</th>
+              <th scope="col">Long URL</th>
+              <th scope="col">Update</th>
+              <th scope="col">Delete</th>
             </tr>
+          </thead>
+
+          <tbody>
+            <% for(let url in urls) { %>
+              <tr>
+                <td>
+                  <%= url %>
+                </td>
+                <td>
+                  <%= urls[url].longURL %>
+                </td>
+                <td>
+                  <form method="GET" action="/urls/<%= url %>">
+                    <button type="submit" class="btn btn-primary">Update</button>
+                  </form>
+                </td>
+                <td>
+                  <form method="POST" action="/urls/<%= url %>/delete">
+                    <button type="submit" class="btn btn-outline-danger">Delete</button>
+                  </form>
+                </td>
+              </tr>
+              <% } %>
+          </tbody>
+          <% } else { %>
+            <label>
+              <h3>Please log in to see shortURLs</h3>
+            </label>
             <% } %>
-        </tbody>
-        <% } else { %>
-          <label>
-            <h3>Please log in to see shortURLs</h3>
-          </label>
-          <% } %>
-      </table>
+        </table>
     </main>
     <!-- Bootstrap JS -->
     <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"

@@ -13,7 +13,7 @@ function urlsForUser(id, urlDatabase) {
   return filter;
 }
 
-
+//see if emails match or not, returns true or false
 function emailLookUp(email, database) {
   for (let id in database) {
     if (email === database[id].email) {
@@ -32,4 +32,10 @@ function idLookUp(email, database) {
   }
 }
 
-module.exports = { urlsForUser, emailLookUp, idLookUp };
+//returns randomstring
+function generateRandomString() {
+  return Math.random().toString(26).slice(-6)
+}
+
+
+module.exports = { urlsForUser, emailLookUp, idLookUp, generateRandomString };
