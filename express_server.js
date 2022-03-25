@@ -70,7 +70,8 @@ function urlsForUser(id, urlDatabase) {
   return filter;
 }
 
-
+//users should be a parameter
+//instead of returning true, return id?
 //returns true if email matches, otherwise false
 function emailLookUp(email) {
   for (let id in users) {
@@ -82,9 +83,9 @@ function emailLookUp(email) {
 };
 
 //returns id based on email
-function idLookUp(email) {
-  for (let id in users) {
-    if (email === users[id].email) {
+function idLookUp(email, database) {
+  for (let id in database) {
+    if (email === database[id].email) {
       return id;
     }
   }
@@ -138,10 +139,11 @@ app.post("/login", (req, res) => {
   const email = req.body.email;
   const password = req.body.password
 
+
   if (!emailLookUp(email)) {
     return res.status(403).send("email not found");
   } else if (bcrypt.compareSync(req.body.password, users[idLookUp(email)].password)) {
-    req.session.user_id = idLookUp(email) //creates cookie
+    req.session.user_id = idLookUp(email, users) //creates cookie
     return res.redirect("/urls")
   } else {
     return res.status(403).send("password incorrect");
