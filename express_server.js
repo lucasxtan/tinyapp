@@ -53,7 +53,7 @@ const users = {
 //this line registers a handler for the root path, "/"
 app.get("/", (req, res) => {
   const user = users[req.session.user_id];
-  res.send("Hello!");
+
   if (user) {
     return res.redirect("/urls");
   } else {
