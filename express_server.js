@@ -107,7 +107,7 @@ app.post("/login", (req, res) => {
   if (!emailLookUp(email, users)) {
     return res.status(403).send("email not found");
   } else if (bcrypt.compareSync(passwordInput, hashPassword)) {
-    req.session.user_id = idLookUp(email, users); //creates cookie
+    req.session.user_id = idLookUp(email, users); //create cookie for login
     return res.redirect("/urls");
   } else {
     return res.status(403).send("password incorrect");
@@ -149,7 +149,7 @@ app.post("/register", (req, res) => {
     return res.status(400).send("Email already registered");
   }
 
-  req.session.user_id = userID;
+  req.session.user_id = userID; //create cookie for registration
 
   users[userID] = {
     id: userID,
@@ -174,11 +174,19 @@ app.get("/register", (req, res) => {
 app.post("/urls", (req, res) => {
   const user = users[req.session.user_id];
   if (!user) {
-    return res.send("You must login to create new URL");
+    return res.status(403).send("You must login to create new URL");
   }
+
+  let longURL = '';
+  if (req.body.longURL.includes("https://") || req.body.longURL.includes("http://")) {
+    longURL = req.body.longURL;
+  } else {
+    longURL = "https://" + req.body.longURL;
+  }
+
   let shortURL = generateRandomString();
   urlDatabase[shortURL] = {
-    longURL: req.body.longURL,
+    longURL: longURL,
     userID: req.session.user_id
   };
   res.redirect(`/urls/${shortURL}`);
@@ -188,11 +196,11 @@ app.post("/urls", (req, res) => {
 app.post("/urls/:shortURL/delete", (req, res) => {
   const user = users[req.session.user_id];
   if (!user) {
-    return res.send("You must login to delete new URL");
+    return res.status(403).send("You must login to delete new URL");
   }
 
   if (user.id !== urlDatabase[req.params.shortURL].userID) {
-    return res.send("This TinyURL is not from your account, you do not have access to this page");
+    return res.status(403).send("This TinyURL is not from your account, you do not have access to this page");
   }
 
   const shortURL = req.params.shortURL;
@@ -204,11 +212,11 @@ app.post("/urls/:shortURL/delete", (req, res) => {
 app.post("/urls/:shortURL", (req, res) => {
   const user = users[req.session.user_id];
   if (!user) {
-    return res.send("You must login to edit URL");
+    return res.status(403).send("You must login to edit URL");
   }
 
   if (user.id !== urlDatabase[req.params.shortURL].userID) {
-    return res.send("This TinyURL is not from your account, you do not have access to this page");
+    return res.status(403).send("This TinyURL is not from your account, you do not have access to this page");
   }
 
   const shortURL = req.params.shortURL;
@@ -220,15 +228,15 @@ app.post("/urls/:shortURL", (req, res) => {
 app.get("/urls/:shortURL", (req, res) => {
   const user = users[req.session.user_id];
   if (!user) {
-    return res.send("You must login to view this page");
+    return res.status(403).send("You must login to view this page");
   }
 
   if (user.id !== urlDatabase[req.params.shortURL].userID) {
-    return res.send("This TinyURL is not from your account, you do not have access to this page");
+    return res.status(403).send("This TinyURL is not from your account, you do not have access to this page");
   }
 
   if (!urlDatabase[req.params.shortURL]) {
-    return res.send("this TinyURL doesn't exist");
+    return res.status(403).send("this TinyURL doesn't exist");
   }
   const templateVars = { shortURL: req.params.shortURL, longURL: urlDatabase[req.params.shortURL].longURL, user: user };
   res.render("urls_show", templateVars);
@@ -237,7 +245,7 @@ app.get("/urls/:shortURL", (req, res) => {
 //redirects me to longURL
 app.get("/u/:shortURL", (req, res) => {
   if (!urlDatabase[req.params.shortURL]) {
-    return res.send("this TinyURL doesn't exist");
+    return res.status(403).send("this TinyURL doesn't exist");
   }
 
   const longURL = urlDatabase[req.params.shortURL].longURL;
